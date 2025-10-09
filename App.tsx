@@ -36,24 +36,24 @@ const App: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run only on initial mount
 
-  const handleSearch = (newLocation: string) => {
+  const handleSearch = useCallback((newLocation: string) => {
     setLocation(newLocation);
     setForecastDays(5); // Reset to 5 days on new search
     getWeatherData(newLocation, 5);
-  };
+  }, [getWeatherData]);
 
-  const handleRetry = () => {
+  const handleRetry = useCallback(() => {
     getWeatherData(location, forecastDays);
-  };
+  }, [getWeatherData, location, forecastDays]);
 
-  const handleDaysChange = (days: number) => {
+  const handleDaysChange = useCallback((days: number) => {
     if (days !== forecastDays) {
       setForecastDays(days);
-      if (location && weatherData) {
+      if (location) {
         getWeatherData(location, days);
       }
     }
-  };
+  }, [forecastDays, location, getWeatherData]);
 
   const LoadingSpinner: React.FC = () => (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -68,33 +68,40 @@ const App: React.FC = () => {
   );
 
   return (
-    <div 
-      className="min-h-screen text-slate-200 bg-cover bg-center bg-fixed"
-      style={{ backgroundImage: `linear-gradient(rgba(10, 15, 30, 0.7), rgba(10, 15, 30, 0.7)), url(${backgroundImageUrl})` }}
-    >
-        <Header onSearch={handleSearch} currentLocation={location} />
-        <main className="p-4 md:p-8">
-          {weatherData && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 space-y-6">
-                <CurrentWeather data={weatherData} />
-                <HourlyForecast data={weatherData.hourly} />
-              </div>
-              <div className="lg:col-span-1 space-y-6">
-                <TodaysHighlights data={weatherData} />
-                <DailyForecast 
-                  data={weatherData.daily} 
-                  activeDays={forecastDays}
-                  onDaysChange={handleDaysChange}
-                />
-              </div>
-            </div>
-          )}
+    <div className="relative min-h-screen overflow-hidden text-slate-200">
+        <div 
+            className="absolute inset-0 bg-cover bg-center animate-subtle-zoom"
+            style={{ backgroundImage: `url(${backgroundImageUrl})` }}
+        />
+        <div 
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(rgba(10, 15, 30, 0.8), rgba(10, 15, 30, 0.8))' }} 
+        />
+        <div className="relative z-10 flex flex-col min-h-screen">
+            <Header onSearch={handleSearch} currentLocation={location} />
+            <main className="p-4 md:p-8 flex-grow">
+              {weatherData && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 space-y-6">
+                    <CurrentWeather data={weatherData} />
+                    <HourlyForecast data={weatherData.hourly} />
+                  </div>
+                  <div className="lg:col-span-1 space-y-6">
+                    <TodaysHighlights data={weatherData} />
+                    <DailyForecast 
+                      data={weatherData.daily} 
+                      activeDays={forecastDays}
+                      onDaysChange={handleDaysChange}
+                    />
+                  </div>
+                </div>
+              )}
 
-          {/* Overlays */}
-          {isLoading && <LoadingSpinner />}
-          {error && <ErrorModal message={error} onRetry={handleRetry} />}
-        </main>
+              {/* Overlays */}
+              {isLoading && <LoadingSpinner />}
+              {error && <ErrorModal message={error} onRetry={handleRetry} />}
+            </main>
+        </div>
     </div>
   );
 };

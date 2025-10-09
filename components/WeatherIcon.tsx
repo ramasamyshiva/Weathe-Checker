@@ -55,4 +55,4 @@ const WeatherIcon: React.FC<WeatherIconProps> = ({ condition, className }) => {
   return getIcon();
 };
 
-export default WeatherIcon;
+export default React.memo(WeatherIcon);

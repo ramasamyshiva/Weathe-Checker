@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://images.unsplash.com">
+
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
+    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?q=80&w=1935&auto=format&fit=crop">
+    
     <title>Gemini Weather Checker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -11,8 +20,7 @@
         font-family: 'Inter', sans-serif;
         color: #e2e8f0; /* slate-200 */
       }
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
+      
       .btn-glow:hover, .btn-glow:focus {
         box-shadow: 0 0 8px rgba(0, 170, 255, 0.6), 0 0 20px rgba(0, 170, 255, 0.4);
         transition: box-shadow 0.3s ease-in-out;
@@ -45,6 +53,14 @@
       .animate-pulse-subtle {
         animation: pulse-subtle 4s ease-in-out infinite;
         transform-origin: center;
+      }
+
+      @keyframes subtle-zoom {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.03); }
+      }
+      .animate-subtle-zoom {
+        animation: subtle-zoom 40s ease-in-out infinite alternate;
       }
 
     </style>

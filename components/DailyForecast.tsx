@@ -48,4 +48,4 @@ const DailyForecast: React.FC<DailyForecastProps> = ({ data, activeDays, onDaysC
   );
 };
   
-export default DailyForecast;
+export default React.memo(DailyForecast);

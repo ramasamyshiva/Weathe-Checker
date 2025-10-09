@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import AlertsModal from './AlertsModal';
+import React, { useState, Suspense } from 'react';
+
+const AlertsModal = React.lazy(() => import('./AlertsModal'));
 
 interface HeaderProps {
   onSearch: (location: string) => void;
@@ -55,13 +56,17 @@ const Header: React.FC<HeaderProps> = ({ onSearch, currentLocation }) => {
           </button>
         </div>
       </header>
-      <AlertsModal 
-        isOpen={isAlertsModalOpen}
-        onClose={() => setIsAlertsModalOpen(false)}
-        location={currentLocation}
-      />
+      {isAlertsModalOpen && (
+        <Suspense fallback={<div />}>
+          <AlertsModal 
+            isOpen={isAlertsModalOpen}
+            onClose={() => setIsAlertsModalOpen(false)}
+            location={currentLocation}
+          />
+        </Suspense>
+      )}
     </>
   );
 };
 
-export default Header;
+export default React.memo(Header);

@@ -40,4 +40,4 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ message, onRetry }) => {
   );
 };
 
-export default ErrorModal;
+export default React.memo(ErrorModal);

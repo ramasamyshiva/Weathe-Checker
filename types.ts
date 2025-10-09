@@ -12,6 +12,14 @@ export interface DailyForecast {
   high: number;
 }
 
+// FIX: Add WeatherAlert interface for the new alerts functionality.
+export interface WeatherAlert {
+  title: string;
+  description: string;
+  severity: 'Low' | 'Moderate' | 'High' | 'Extreme';
+  source: string;
+}
+
 export interface WeatherData {
   location: string;
   date: string;

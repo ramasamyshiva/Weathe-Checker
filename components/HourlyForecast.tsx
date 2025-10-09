@@ -1,10 +1,10 @@
 import React from 'react';
 import InfoCard from './InfoCard';
 import WeatherIcon from './WeatherIcon';
-import { HourlyForecast } from '../types';
+import { HourlyForecast as HourlyForecastData } from '../types';
 
 interface HourlyForecastProps {
-  data: HourlyForecast[];
+  data: HourlyForecastData[];
 }
 
 const HourlyForecast: React.FC<HourlyForecastProps> = ({ data }) => {
@@ -26,4 +26,4 @@ const HourlyForecast: React.FC<HourlyForecastProps> = ({ data }) => {
   );
 };
 
-export default HourlyForecast;
+export default React.memo(HourlyForecast);

@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { WeatherData } from '../types';
+// FIX: Import WeatherAlert type
+import { WeatherData, WeatherAlert } from '../types';
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
@@ -86,5 +87,43 @@ export const fetchWeatherData = async (location: string, days: number = 5): Prom
   } catch (error) {
     console.error("Error fetching weather data:", error);
     throw new Error("Failed to fetch weather data from Gemini API. Make sure your API key is configured correctly.");
+  }
+};
+
+// FIX: Add function to fetch weather alerts.
+export const fetchWeatherAlerts = async (location: string): Promise<WeatherAlert[]> => {
+  const alertsSchema = {
+    type: Type.ARRAY,
+    description: "A list of current weather alerts for the specified location. If there are no alerts, return an empty array.",
+    items: {
+      type: Type.OBJECT,
+      properties: {
+        title: { type: Type.STRING, description: "The title of the alert, e.g., 'Severe Thunderstorm Warning'." },
+        description: { type: Type.STRING, description: "A detailed description of the alert." },
+        severity: { type: Type.STRING, description: "The severity level of the alert. Can be 'Low', 'Moderate', 'High', or 'Extreme'." },
+        source: { type: Type.STRING, description: "The source of the alert, e.g., 'National Weather Service'." },
+      },
+      required: ["title", "description", "severity", "source"]
+    }
+  };
+
+  const prompt = `Generate a list of current, realistic weather alerts for ${location}. If there are no active alerts, return an empty array. The output must be in JSON format matching the provided schema.`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: alertsSchema,
+      },
+    });
+
+    const jsonString = response.text;
+    const data = JSON.parse(jsonString);
+    return data as WeatherAlert[];
+  } catch (error) {
+    console.error("Error fetching weather alerts:", error);
+    throw new Error("Failed to fetch weather alerts from Gemini API.");
   }
 };
