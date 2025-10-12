@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3e%3cdefs%3e%3clinearGradient id='a' x1='27.5' x2='36.5' y1='17.21' y2='32.79' gradientUnits='userSpaceOnUse'%3e%3cstop offset='0' stop-color='%23fbbf24'/%3e%3cstop offset='.45' stop-color='%23fbbf24'/%3e%3cstop offset='1' stop-color='%23f59e0b'/%3e%3c/linearGradient%3e%3clinearGradient id='b' x1='22.56' x2='39.2' y1='21.96' y2='50.8' gradientUnits='userSpaceOnUse'%3e%3cstop offset='0' stop-color='%23f3f7fe'/%3e%3cstop offset='.45' stop-color='%23f3f7fe'/%3e%3cstop offset='1' stop-color='%23deeafb'/%3e%3c/defs%3e%3ccircle cx='32' cy='25' r='9' fill='url(%23a)'/%3e%3cpath fill='url(%23b)' d='M46.5 31.5h-.32a10.49 10.49 0 00-19.11-8.43A11.49 11.49 0 0022.5 49.5h24a9 9 0 000-18z'/%3e%3c/svg%3e" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,7 +13,7 @@
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="preload" as="image" href="https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?q=80&w=1935&auto=format&fit=crop">
     
-    <title>Gemini Weather Checker</title>
+    <title>WEATHER CHECKER</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
@@ -62,7 +62,33 @@
       .animate-subtle-zoom {
         animation: subtle-zoom 120s ease-in-out infinite alternate;
       }
+      
+      @keyframes blob {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(30px, -50px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+        100% { transform: translate(0px, 0px) scale(1); }
+      }
 
+      .animate-blob {
+        animation: blob 15s infinite ease-in-out;
+      }
+      
+      .animation-delay-2000 {
+        animation-delay: 2s;
+      }
+
+      .animation-delay-4000 {
+        animation-delay: 4s;
+      }
+
+      .json-key { color: #9cdcfe; } /* light blue for keys */
+      .json-string { color: #ce9178; } /* orange for strings */
+      .json-number { color: #b5cea8; } /* light green for numbers */
+      .json-boolean { color: #569cd6; } /* blue for booleans */
+      .json-null { color: #569cd6; } /* blue for null */
+      .json-brace { color: #ffd700; } /* gold for braces/brackets */
+      
     </style>
   <script type="importmap">
 {

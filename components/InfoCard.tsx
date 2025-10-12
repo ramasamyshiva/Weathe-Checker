@@ -1,6 +1,5 @@
 import React from 'react';
 
-// FIX: Allow passing DOM attributes like onClick to the underlying div by extending HTMLAttributes.
 interface InfoCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;

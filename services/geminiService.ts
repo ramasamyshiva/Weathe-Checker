@@ -1,5 +1,4 @@
 import { GoogleGenAI, Type } from "@google/genai";
-// FIX: Import WeatherAlert type
 import { WeatherData, WeatherAlert } from '../types';
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -14,6 +13,7 @@ export const fetchWeatherData = async (location: string, days: number = 5): Prom
         type: Type.OBJECT,
         properties: {
           temp: { type: Type.NUMBER, description: "Current temperature in Celsius." },
+          feelsLike: { type: Type.NUMBER, description: "The 'feels like' temperature in Celsius, accounting for wind chill and humidity." },
           condition: { type: Type.STRING, description: "A brief weather condition, e.g., 'Heavy Rain', 'Sunny', 'Partly Cloudy'." },
           wind: {
             type: Type.OBJECT,
@@ -34,9 +34,19 @@ export const fetchWeatherData = async (location: string, days: number = 5): Prom
               description: { type: Type.STRING, description: "UV index description, e.g., 'Moderate'." }
             },
             required: ["value", "description"]
+          },
+          sunrise: { type: Type.STRING, description: "Sunrise time in HH:MM AM/PM format, e.g., '06:15 AM'." },
+          sunset: { type: Type.STRING, description: "Sunset time in HH:MM AM/PM format, e.g., '07:30 PM'." },
+          aqi: {
+            type: Type.OBJECT,
+            properties: {
+              value: { type: Type.NUMBER, description: "Air Quality Index value." },
+              description: { type: Type.STRING, description: "AQI description, e.g., 'Good', 'Moderate', 'Unhealthy'." }
+            },
+            required: ["value", "description"]
           }
         },
-        required: ["temp", "condition", "wind", "humidity", "pressure", "visibility", "uvIndex"]
+        required: ["temp", "feelsLike", "condition", "wind", "humidity", "pressure", "visibility", "uvIndex", "sunrise", "sunset", "aqi"]
       },
       hourly: {
         type: Type.ARRAY,
@@ -69,7 +79,7 @@ export const fetchWeatherData = async (location: string, days: number = 5): Prom
     required: ["location", "date", "current", "hourly", "daily"]
   };
 
-  const prompt = `Generate a realistic and current weather forecast for ${location}. Provide the current weather (including wind gusts if applicable), a 10-hour hourly forecast starting from the next rounded hour, and a ${days}-day daily forecast. The output must be in JSON format matching the provided schema. Use Celsius for temperature and km/h for wind speed. The current date and time should be based on the location's timezone.`;
+  const prompt = `Generate a realistic and current weather forecast for ${location}. Provide the current weather (including wind gusts if applicable, 'feels like' temperature, sunrise/sunset times, and Air Quality Index), a 10-hour hourly forecast starting from the next rounded hour, and a ${days}-day daily forecast. The output must be in JSON format matching the provided schema. Use Celsius for temperature and km/h for wind speed. The current date and time should be based on the location's timezone.`;
 
   try {
     const response = await ai.models.generateContent({
@@ -86,11 +96,24 @@ export const fetchWeatherData = async (location: string, days: number = 5): Prom
     return data as WeatherData;
   } catch (error) {
     console.error("Error fetching weather data:", error);
-    throw new Error("Failed to fetch weather data from Gemini API. Make sure your API key is configured correctly.");
+    let errorMessage = "Failed to fetch weather data due to an unknown error.";
+
+    if (error instanceof Error) {
+      const lowerCaseMessage = error.message.toLowerCase();
+      if (lowerCaseMessage.includes('api key') || lowerCaseMessage.includes('permission denied')) {
+        errorMessage = "Invalid Gemini API Key. Please ensure your API key is configured correctly.";
+      } else if (lowerCaseMessage.includes('fetch') || lowerCaseMessage.includes('network')) {
+        errorMessage = "Network Error: Could not fetch weather data. Please check your internet connection.";
+      } else if (error instanceof SyntaxError || lowerCaseMessage.includes('400')) {
+        errorMessage = "Invalid Location: Could not retrieve data for the specified location. Please try a different one.";
+      } else {
+        errorMessage = error.message;
+      }
+    }
+    throw new Error(errorMessage);
   }
 };
 
-// FIX: Add function to fetch weather alerts.
 export const fetchWeatherAlerts = async (location: string): Promise<WeatherAlert[]> => {
   const alertsSchema = {
     type: Type.ARRAY,
@@ -124,6 +147,49 @@ export const fetchWeatherAlerts = async (location: string): Promise<WeatherAlert
     return data as WeatherAlert[];
   } catch (error) {
     console.error("Error fetching weather alerts:", error);
-    throw new Error("Failed to fetch weather alerts from Gemini API.");
+    let errorMessage = "Failed to fetch weather alerts due to an unknown error.";
+    if (error instanceof Error) {
+      const lowerCaseMessage = error.message.toLowerCase();
+      if (lowerCaseMessage.includes('api key') || lowerCaseMessage.includes('permission denied')) {
+        errorMessage = "Invalid Gemini API Key. Please ensure your API key is configured correctly.";
+      } else if (lowerCaseMessage.includes('fetch') || lowerCaseMessage.includes('network')) {
+        errorMessage = "Network Error: Could not fetch alerts. Please check your internet connection.";
+      } else if (error instanceof SyntaxError || lowerCaseMessage.includes('400')) {
+         errorMessage = "Invalid Location: Could not retrieve alerts for the specified location.";
+      } else {
+        errorMessage = error.message;
+      }
+    }
+    throw new Error(errorMessage);
+  }
+};
+
+export const askGeminiAboutWeather = async (question: string, weatherData: WeatherData): Promise<string> => {
+  const prompt = `Based on the following weather data, answer the user's question.
+  Weather Data: ${JSON.stringify(weatherData, null, 2)}
+  Question: "${question}"
+
+  Provide a friendly, conversational, and helpful response in a single paragraph. Be concise and focus on the most relevant information from the data to answer the question.`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+    return response.text;
+  } catch (error) {
+    console.error("Error asking Gemini about weather:", error);
+    let errorMessage = "Failed to get a response from Gemini due to an unknown error.";
+    if (error instanceof Error) {
+      const lowerCaseMessage = error.message.toLowerCase();
+      if (lowerCaseMessage.includes('api key') || lowerCaseMessage.includes('permission denied')) {
+        errorMessage = "Invalid Gemini API Key. Please ensure your API key is configured correctly.";
+      } else if (lowerCaseMessage.includes('fetch') || lowerCaseMessage.includes('network')) {
+        errorMessage = "Network Error: Could not contact Gemini. Please check your internet connection.";
+      } else {
+        errorMessage = error.message;
+      }
+    }
+    throw new Error(errorMessage);
   }
 };

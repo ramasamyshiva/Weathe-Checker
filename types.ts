@@ -12,7 +12,6 @@ export interface DailyForecast {
   high: number;
 }
 
-// FIX: Add WeatherAlert interface for the new alerts functionality.
 export interface WeatherAlert {
   title: string;
   description: string;
@@ -25,6 +24,7 @@ export interface WeatherData {
   date: string;
   current: {
     temp: number;
+    feelsLike: number;
     condition: string;
     wind: {
       speed: number;
@@ -35,6 +35,12 @@ export interface WeatherData {
     pressure: number;
     visibility: number;
     uvIndex: {
+      value: number;
+      description: string;
+    };
+    sunrise: string;
+    sunset: string;
+    aqi: {
       value: number;
       description: string;
     };
