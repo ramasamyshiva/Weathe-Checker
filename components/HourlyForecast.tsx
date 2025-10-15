@@ -80,7 +80,7 @@ const HourlyForecastChart: React.FC<HourlyForecastProps> = ({ data }) => {
         </defs>
 
         {/* X-axis labels (Time) */}
-        <g className="text-xs fill-current text-gray-500">
+        <g className="text-xs fill-current text-gray-500 dark:text-gray-500">
           {points.map((point, index) => (
             <text key={index} x={point.x} y={100} textAnchor="middle">
               {chartData[index].time}
@@ -103,13 +103,13 @@ const HourlyForecastChart: React.FC<HourlyForecastProps> = ({ data }) => {
               y1="0"
               x2={tooltipPosition.x}
               y2="80"
-              stroke="#FFFFFF"
+              className="stroke-gray-600 dark:stroke-white"
               strokeWidth="1"
               strokeDasharray="3 3"
               strokeOpacity={0.5}
             />
             {/* Circle on point */}
-            <circle cx={tooltipPosition.x} cy={tooltipPosition.y} r="4" fill="#181818" stroke="#FFA500" strokeWidth="2" />
+            <circle cx={tooltipPosition.x} cy={tooltipPosition.y} r="4" className="fill-gray-100 dark:fill-[#181818] stroke-orange-500" strokeWidth="2" />
           </g>
         )}
       </svg>
@@ -117,7 +117,7 @@ const HourlyForecastChart: React.FC<HourlyForecastProps> = ({ data }) => {
       {/* Tooltip */}
       {hoveredIndex !== null && tooltipPosition && hoveredData && (
         <div 
-            className="absolute bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 text-sm pointer-events-none transition-transform duration-100 ease-out"
+            className="absolute bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm pointer-events-none transition-transform duration-100 ease-out shadow-lg"
             style={{
               left: `${(tooltipPosition.x / 500) * 100}%`,
               bottom: `${100 - (tooltipPosition.y / 100) * 100 + 5}%`,
@@ -125,8 +125,8 @@ const HourlyForecastChart: React.FC<HourlyForecastProps> = ({ data }) => {
               whiteSpace: 'nowrap'
             }}
         >
-            <span className="font-bold text-white">{hoveredData.temp}°C</span>
-            <span className="text-gray-400 ml-2">{hoveredData.time}</span>
+            <span className="font-bold text-gray-900 dark:text-white">{hoveredData.temp}°C</span>
+            <span className="text-gray-500 dark:text-gray-400 ml-2">{hoveredData.time}</span>
         </div>
       )}
     </div>

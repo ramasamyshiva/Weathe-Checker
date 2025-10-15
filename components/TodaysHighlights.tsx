@@ -3,21 +3,21 @@ import React, { useState } from 'react';
 // This component is repurposed as RightSidebar
 
 const TabButton = ({ label, active, onClick }: { label: string, active: boolean, onClick: () => void }) => (
-    <button onClick={onClick} className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors ${active ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-600'}`}>
+    <button onClick={onClick} className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors ${active ? 'bg-gray-700 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
         {label}
     </button>
 );
 
 // FIX: Changed JSX.Element to React.ReactNode to resolve "Cannot find namespace 'JSX'" error.
 const EventCard = ({ time, title, description, icon }: { time: string, title: string, description: string, icon: React.ReactNode }) => (
-    <div className="bg-gray-900 rounded-lg p-4 flex items-start space-x-4 hover:bg-gray-800 transition-colors">
-        <div className="bg-gray-800 p-2 rounded-full mt-1">
+    <div className="bg-gray-200 dark:bg-gray-900 rounded-lg p-4 flex items-start space-x-4 hover:bg-gray-300 dark:hover:bg-gray-800 transition-colors">
+        <div className="bg-gray-300 dark:bg-gray-800 p-2 rounded-full mt-1">
             {icon}
         </div>
         <div>
-            <p className="text-xs text-gray-500">{time}</p>
-            <h4 className="font-semibold text-white">{title}</h4>
-            <p className="text-sm text-gray-400">{description}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-500">{time}</p>
+            <h4 className="font-semibold text-gray-900 dark:text-white">{title}</h4>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
         </div>
     </div>
 );
@@ -33,21 +33,21 @@ const RightSidebar = () => {
     ];
     
     return (
-        <aside className="w-80 bg-black text-white p-4 flex flex-col space-y-6 flex-shrink-0">
+        <aside className="w-80 bg-white dark:bg-black text-gray-900 dark:text-white p-4 flex flex-col space-y-6 flex-shrink-0">
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     <span className="font-semibold">27 November 2024</span>
                 </div>
                 <div className="flex items-center space-x-4">
-                    <button className="text-gray-400 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 12.586V8a6 6 0 00-6-6zM10 16a2 2 0 110-4 2 2 0 010 4z" /></svg></button>
+                    <button className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 12.586V8a6 6 0 00-6-6zM10 16a2 2 0 110-4 2 2 0 010 4z" /></svg></button>
                     <img src="https://i.pravatar.cc/40?u=a042581f4e29026704d" alt="User avatar" className="w-8 h-8 rounded-full" />
                 </div>
             </div>
 
             {/* Tabs */}
-            <div className="bg-gray-900 rounded-lg p-1 flex space-x-1">
+            <div className="bg-gray-200 dark:bg-gray-900 rounded-lg p-1 flex space-x-1">
                 <TabButton label="Views" active={activeTab === 'Views'} onClick={() => setActiveTab('Views')} />
                 <TabButton label="Alerts" active={activeTab === 'Alerts'} onClick={() => setActiveTab('Alerts')} />
                 <TabButton label="Trigger Events" active={activeTab === 'Trigger Events'} onClick={() => setActiveTab('Trigger Events')} />

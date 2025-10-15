@@ -15,7 +15,28 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isApiModalOpen, setIsApiModalOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // Set initial theme based on saved preference, or system preference, defaulting to dark.
+    setTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+  }, []);
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
+  };
+  
   const getWeatherData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -42,8 +63,8 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div className="bg-[#181818] text-gray-300 min-h-screen flex font-sans">
-        <LeftSidebar />
+      <div className="bg-gray-100 dark:bg-[#181818] text-gray-900 dark:text-gray-300 min-h-screen flex font-sans">
+        <LeftSidebar theme={theme} onToggleTheme={toggleTheme} />
         <main className="flex-1 p-6 overflow-y-auto">
           {isLoading && (
             <div className="flex items-center justify-center h-full">

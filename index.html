@@ -18,11 +18,22 @@
     
     <title>WEATHER CHECKER</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {},
+        },
+        plugins: [],
+      }
+    </script>
     <style>
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #0A0A0A;
-        color: #D1D5DB; /* gray-300 */
+        @apply bg-gray-100 text-gray-800 transition-colors duration-300;
+      }
+      html.dark body {
+        @apply bg-[#0A0A0A] text-gray-300;
       }
       /* Custom scrollbar for a better look in dark mode */
       ::-webkit-scrollbar {
@@ -30,14 +41,13 @@
         height: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #1F2937; /* gray-800 */
+        @apply bg-gray-200 dark:bg-gray-800;
       }
       ::-webkit-scrollbar-thumb {
-        background: #4B5563; /* gray-600 */
-        border-radius: 4px;
+        @apply bg-gray-400 dark:bg-gray-600 rounded-md;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #6B7280; /* gray-500 */
+        @apply bg-gray-500 dark:bg-gray-500;
       }
     </style>
   <script type="importmap">

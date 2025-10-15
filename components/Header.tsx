@@ -4,13 +4,13 @@ import React from 'react';
 
 // FIX: Changed JSX.Element to React.ReactNode to resolve "Cannot find namespace 'JSX'" error.
 const NavItem = ({ icon, label, active = false }: { icon: React.ReactNode; label: string; active?: boolean }) => (
-    <a href="#" className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 ${active ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}>
+    <a href="#" className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 ${active ? 'bg-orange-500 text-white dark:bg-gray-700' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}`}>
         {icon}
         <span className="font-medium">{label}</span>
     </a>
 );
 
-const LeftSidebar = () => {
+const LeftSidebar = ({ theme, onToggleTheme }: { theme: 'light' | 'dark'; onToggleTheme: () => void; }) => {
     const navItems = [
         { label: 'Home', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>, active: true },
         { label: 'Maps', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293A1 1 0 0016 6v10a1 1 0 00.293.707L20 20.414V7.586L17.707 5.293z" clipRule="evenodd" /></svg> },
@@ -22,7 +22,7 @@ const LeftSidebar = () => {
     ];
 
     return (
-        <aside className="w-64 bg-black text-white p-4 flex flex-col space-y-4 flex-shrink-0">
+        <aside className="w-64 bg-white dark:bg-black text-gray-900 dark:text-white p-4 flex flex-col space-y-4 flex-shrink-0">
             <div className="flex items-center space-x-2 px-2">
                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-orange-500" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 001.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
@@ -40,11 +40,19 @@ const LeftSidebar = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
                     <span>New forecast</span>
                 </button>
-                <div className="flex justify-between items-center mt-4 bg-gray-900 rounded-lg p-2">
-                    <span className="text-sm text-gray-400">Dark mode</span>
+                <div className="flex justify-between items-center mt-4 bg-gray-200 dark:bg-gray-900 rounded-lg p-2">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Dark mode</span>
                     <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                        <input type="checkbox" name="toggle" id="toggle" className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer right-0 checked:right-4" checked readOnly/>
-                        <label htmlFor="toggle" className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-700 cursor-pointer"></label>
+                        <input 
+                            type="checkbox" 
+                            name="toggle" 
+                            id="toggle" 
+                            className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out right-4 checked:right-0" 
+                            style={{ right: theme === 'dark' ? '0' : '1rem' }}
+                            checked={theme === 'dark'} 
+                            onChange={onToggleTheme}
+                        />
+                        <label htmlFor="toggle" className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-700 cursor-pointer"></label>
                     </div>
                 </div>
             </div>
