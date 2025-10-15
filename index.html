@@ -9,86 +9,36 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://images.unsplash.com">
 
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
-    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?q=80&w=1935&auto=format&fit=crop">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
+    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1611416521382-84a14389659b?q=80&w=2070&auto=format&fit=crop">
+    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1594247552593-3532186a8559?q=80&w=2070&auto=format&fit=crop">
+    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1611270219575-587410b64b8a?q=80&w=2070&auto=format&fit=crop">
+    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1581229929983-f5255a587597?q=80&w=2070&auto=format&fit=crop">
     
     <title>WEATHER CHECKER</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
         font-family: 'Inter', sans-serif;
-        color: #e2e8f0; /* slate-200 */
+        background-color: #0A0A0A;
+        color: #D1D5DB; /* gray-300 */
       }
-      
-      .btn-glow:hover, .btn-glow:focus {
-        box-shadow: 0 0 8px rgba(0, 170, 255, 0.6), 0 0 20px rgba(0, 170, 255, 0.4);
-        transition: box-shadow 0.3s ease-in-out;
+      /* Custom scrollbar for a better look in dark mode */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
       }
-
-      @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+      ::-webkit-scrollbar-track {
+        background: #1F2937; /* gray-800 */
       }
-
-      .animate-spin-slow {
-        animation: spin 25s linear infinite;
-        transform-origin: center;
+      ::-webkit-scrollbar-thumb {
+        background: #4B5563; /* gray-600 */
+        border-radius: 4px;
       }
-
-      @keyframes fall {
-        0% { transform: translateY(-4px); opacity: 1; }
-        100% { transform: translateY(8px); opacity: 0; }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #6B7280; /* gray-500 */
       }
-
-      .animate-rain-1 { animation: fall 1.5s linear infinite; }
-      .animate-rain-2 { animation: fall 1.5s linear infinite 0.5s; }
-      .animate-rain-3 { animation: fall 1.5s linear infinite 1s; }
-
-      @keyframes pulse-subtle {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.02); }
-      }
-
-      .animate-pulse-subtle {
-        animation: pulse-subtle 5s ease-in-out infinite;
-        transform-origin: center;
-      }
-
-      @keyframes subtle-zoom {
-        0% { transform: scale(1); }
-        100% { transform: scale(1.03); }
-      }
-      .animate-subtle-zoom {
-        animation: subtle-zoom 120s ease-in-out infinite alternate;
-      }
-      
-      @keyframes blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
-      }
-
-      .animate-blob {
-        animation: blob 15s infinite ease-in-out;
-      }
-      
-      .animation-delay-2000 {
-        animation-delay: 2s;
-      }
-
-      .animation-delay-4000 {
-        animation-delay: 4s;
-      }
-
-      .json-key { color: #9cdcfe; } /* light blue for keys */
-      .json-string { color: #ce9178; } /* orange for strings */
-      .json-number { color: #b5cea8; } /* light green for numbers */
-      .json-boolean { color: #569cd6; } /* blue for booleans */
-      .json-null { color: #569cd6; } /* blue for null */
-      .json-brace { color: #ffd700; } /* gold for braces/brackets */
-      
     </style>
   <script type="importmap">
 {

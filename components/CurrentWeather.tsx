@@ -1,52 +1,263 @@
-import React from 'react';
-import InfoCard from './InfoCard';
-import WeatherIcon from './WeatherIcon';
+import React, { useState, useRef, useEffect } from 'react';
 import { WeatherData } from '../types';
+import HourlyForecast from './HourlyForecast';
 
-interface CurrentWeatherProps {
-  data: WeatherData;
-  onApiClick: () => void;
-}
+// This component is repurposed as Dashboard
 
-const CurrentWeather: React.FC<CurrentWeatherProps> = ({ data, onApiClick }) => {
-  return (
-    <InfoCard className="relative flex flex-col md:flex-row items-center justify-between gap-8">
-      <button 
-        onClick={onApiClick}
-        className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:bg-white/20 hover:text-white transition-colors z-10"
-        aria-label="View API response"
-        title="View API response"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-        </svg>
-      </button>
+const OVERLAY_IMAGES = {
+    'Temperature': "url('https://images.unsplash.com/photo-1581229929983-f5255a587597?q=80&w=2070&auto=format&fit=crop')",
+    'Precipitation': "url('https://images.unsplash.com/photo-1594247552593-3532186a8559?q=80&w=2070&auto=format&fit=crop')",
+    'Wind speed': "url('https://images.unsplash.com/photo-1611270219575-587410b64b8a?q=80&w=2070&auto=format&fit=crop')",
+    'Events': 'none',
+};
+type OverlayType = keyof typeof OVERLAY_IMAGES;
 
-      <div className="text-center md:text-left">
-        <div className="flex items-center gap-2 text-slate-400">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-            <span>{data.date}</span>
-        </div>
-        <div className="flex items-center gap-2 text-slate-400 mt-2">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-            <span>{data.location}</span>
-        </div>
+type ActiveControlType = 'zoomin' | 'zoomout' | 'panup' | 'pandown' | 'panleft' | 'panright';
 
-        <div className="mt-8">
-            <h2 className="text-5xl font-bold text-white">{data.current.condition}</h2>
-            <p className="text-8xl font-thin text-[#00aaff] mt-2">{data.current.temp}°C</p>
-            <p className="text-xl text-slate-400 -mt-2">Feels like {data.current.feelsLike}°C</p>
-            <div className="flex items-center justify-center md:justify-start gap-2 text-slate-400 mt-4">
-                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" transform="rotate(45)"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 12h14" /></svg>
-                 <span>{data.current.wind.direction}, {data.current.wind.speed} km/h</span>
+const MapInteractionControls = ({ 
+    onZoom, 
+    onPan, 
+    activeControl, 
+    setActiveControl 
+}: { 
+    onZoom: (direction: 'in' | 'out') => void; 
+    onPan: (direction: 'up' | 'down' | 'left' | 'right') => void;
+    activeControl: ActiveControlType | null;
+    setActiveControl: (control: ActiveControlType | null) => void;
+}) => {
+    const intervalRef = useRef<number | null>(null);
+
+    const startContinuousAction = (action: () => void) => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        action(); // Perform action immediately on click
+        intervalRef.current = window.setInterval(action, 100); // Repeat every 100ms
+    };
+
+    const stopContinuousAction = () => {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
+        setActiveControl(null);
+    };
+
+    const handleMouseDown = (control: ActiveControlType, action: () => void) => {
+        setActiveControl(control);
+        startContinuousAction(action);
+    };
+    
+    useEffect(() => {
+        // Cleanup interval on component unmount
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
+    }, []);
+
+    const getControlClasses = (control: ActiveControlType) => 
+        `p-2 text-gray-300 hover:bg-white/20 transition-all duration-150 ${activeControl === control ? 'bg-white/40 scale-95' : ''}`;
+
+    return (
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex flex-col items-center space-y-4">
+            {/* Zoom Controls */}
+            <div className="bg-black/30 backdrop-blur-sm rounded-lg flex flex-col">
+                <button 
+                    onMouseDown={() => handleMouseDown('zoomin', () => onZoom('in'))} 
+                    onMouseUp={stopContinuousAction}
+                    onMouseLeave={stopContinuousAction}
+                    className={`${getControlClasses('zoomin')} rounded-t-lg font-bold text-lg`}
+                    aria-label="Zoom In"
+                >+</button>
+                <div className="h-px bg-white/20"></div>
+                <button 
+                    onMouseDown={() => handleMouseDown('zoomout', () => onZoom('out'))} 
+                    onMouseUp={stopContinuousAction}
+                    onMouseLeave={stopContinuousAction}
+                    className={`${getControlClasses('zoomout')} rounded-b-lg font-bold text-lg`}
+                    aria-label="Zoom Out"
+                >-</button>
+            </div>
+
+            {/* Pan Controls */}
+            <div className="bg-black/30 backdrop-blur-sm rounded-full p-1 grid grid-cols-3 grid-rows-3 gap-px w-20 h-20 text-lg">
+                <div/>
+                <button onMouseDown={() => handleMouseDown('panup', () => onPan('up'))} onMouseUp={stopContinuousAction} onMouseLeave={stopContinuousAction} className={`${getControlClasses('panup')} rounded-full flex items-center justify-center`} aria-label="Pan Up">↑</button>
+                <div/>
+                <button onMouseDown={() => handleMouseDown('panleft', () => onPan('left'))} onMouseUp={stopContinuousAction} onMouseLeave={stopContinuousAction} className={`${getControlClasses('panleft')} rounded-full flex items-center justify-center`} aria-label="Pan Left">←</button>
+                <div className="flex items-center justify-center text-gray-500 text-xs font-sans">PAN</div>
+                <button onMouseDown={() => handleMouseDown('panright', () => onPan('right'))} onMouseUp={stopContinuousAction} onMouseLeave={stopContinuousAction} className={`${getControlClasses('panright')} rounded-full flex items-center justify-center`} aria-label="Pan Right">→</button>
+                <div/>
+                <button onMouseDown={() => handleMouseDown('pandown', () => onPan('down'))} onMouseUp={stopContinuousAction} onMouseLeave={stopContinuousAction} className={`${getControlClasses('pandown')} rounded-full flex items-center justify-center`} aria-label="Pan Down">↓</button>
+                <div/>
             </div>
         </div>
-      </div>
-      <div className="w-64 h-64">
-        <WeatherIcon condition={data.current.condition} />
-      </div>
-    </InfoCard>
-  );
+    );
 };
 
-export default React.memo(CurrentWeather);
+
+const Dashboard = ({ weatherData, onOpenApiModal }: { weatherData: WeatherData; onOpenApiModal: () => void; }) => {
+    const { location, current, hourly } = weatherData;
+
+    const [zoom, setZoom] = useState(1);
+    const [pan, setPan] = useState({ x: 50, y: 50 });
+    const [activeOverlay, setActiveOverlay] = useState<OverlayType>('Precipitation');
+    const [activeControl, setActiveControl] = useState<ActiveControlType | null>(null);
+
+    // States for seamless cross-fade transition
+    const [isOverlay1Active, setIsOverlay1Active] = useState(true);
+    const [overlay1Style, setOverlay1Style] = useState<React.CSSProperties>({
+        backgroundImage: OVERLAY_IMAGES['Precipitation'],
+        opacity: 1,
+        transition: 'opacity 700ms ease-in-out',
+    });
+    const [overlay2Style, setOverlay2Style] = useState<React.CSSProperties>({
+        backgroundImage: 'none',
+        opacity: 0,
+        transition: 'opacity 700ms ease-in-out',
+    });
+
+    const handleOverlayChange = (newOverlay: OverlayType) => {
+        if (newOverlay === activeOverlay) return;
+
+        const newImage = OVERLAY_IMAGES[newOverlay];
+        const newOpacity = newOverlay === 'Events' ? 0 : newOverlay === 'Precipitation' ? 1 : 0.5;
+
+        if (isOverlay1Active) {
+            // Overlay 1 is visible, fade it out and fade in Overlay 2
+            setOverlay2Style(prev => ({ ...prev, backgroundImage: newImage, opacity: newOpacity }));
+            setOverlay1Style(prev => ({ ...prev, opacity: 0 }));
+        } else {
+            // Overlay 2 is visible, fade it out and fade in Overlay 1
+            setOverlay1Style(prev => ({ ...prev, backgroundImage: newImage, opacity: newOpacity }));
+            setOverlay2Style(prev => ({ ...prev, opacity: 0 }));
+        }
+        
+        setIsOverlay1Active(prev => !prev);
+        setActiveOverlay(newOverlay);
+    };
+
+    const handleZoom = (direction: 'in' | 'out') => {
+        const zoomStep = 0.1;
+        if (direction === 'in') {
+            setZoom(prev => Math.min(prev + zoomStep, 3)); // Max zoom 3x
+        } else {
+            setZoom(prev => Math.max(prev - zoomStep, 1)); // Min zoom 1x
+        }
+    };
+    
+    const handlePan = (direction: 'up' | 'down' | 'left' | 'right') => {
+        const panStep = 2.5;
+        setPan(prev => {
+            let { x, y } = prev;
+            if (direction === 'up') y = Math.max(y - panStep, 0);
+            if (direction === 'down') y = Math.min(y + panStep, 100);
+            if (direction === 'left') x = Math.max(x - panStep, 0);
+            if (direction === 'right') x = Math.min(x + panStep, 100);
+            return { x, y };
+        });
+    };
+
+    return (
+        <div className="h-full flex flex-col">
+            <h1 className="text-3xl font-bold text-white mb-6">Dashboard: <span className="text-gray-400">{location.split(',')[0]}</span></h1>
+            
+            <div className="flex-1 bg-gray-900 rounded-2xl p-2 flex flex-col relative overflow-hidden">
+                 {/* Map Container with transform for zoom/pan */}
+                <div 
+                    className="absolute inset-0 transition-transform duration-300 ease-out"
+                    style={{ 
+                        transform: `scale(${zoom})`,
+                        backgroundPosition: `${pan.x}% ${pan.y}%`
+                    }}
+                >
+                    {/* Base Map Background */}
+                    <div 
+                        className="absolute inset-0 bg-cover bg-center rounded-2xl"
+                        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1611416521382-84a14389659b?q=80&w=2070&auto=format&fit=crop')" }}
+                    ></div>
+                    {/* Visual Overlay Layer 1 */}
+                    <div
+                        className="absolute inset-0 bg-cover bg-center rounded-2xl"
+                        style={overlay1Style}
+                    ></div>
+                    {/* Visual Overlay Layer 2 */}
+                    <div
+                        className="absolute inset-0 bg-cover bg-center rounded-2xl"
+                        style={overlay2Style}
+                    ></div>
+                </div>
+
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent"></div>
+
+                <MapInteractionControls 
+                    onZoom={handleZoom} 
+                    onPan={handlePan} 
+                    activeControl={activeControl}
+                    setActiveControl={setActiveControl}
+                />
+
+                {/* Map Controls */}
+                <div className="relative flex justify-between items-center p-4 z-10">
+                    <div className="flex space-x-1 bg-black/30 backdrop-blur-sm rounded-lg p-1">
+                        {(Object.keys(OVERLAY_IMAGES) as OverlayType[]).map((item) => (
+                            <button 
+                                key={item} 
+                                onClick={() => handleOverlayChange(item)}
+                                className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${activeOverlay === item ? 'bg-white text-black' : 'text-gray-300 hover:bg-white/20'}`}>
+                                {item}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                       <button onClick={onOpenApiModal} className="p-2 rounded-lg bg-black/30 backdrop-blur-sm hover:bg-white/20 transition-colors" aria-label="Show Raw API Data">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                          </svg>
+                       </button>
+                       <button className="p-2 rounded-lg bg-black/30 backdrop-blur-sm hover:bg-white/20 transition-colors" aria-label="Add Location">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+                          </svg>
+                       </button>
+                    </div>
+                </div>
+
+                {/* Main content on map */}
+                <div className="flex-1 flex items-center justify-center relative z-10">
+                    {/* Data Overlay Card */}
+                    <div className="bg-black/30 backdrop-blur-md p-6 rounded-xl border border-gray-700 text-white text-center">
+                        <p className="text-8xl font-thin tracking-tighter">{current.temp}°C</p>
+                        <p className="text-gray-400 -mt-2">{current.condition}</p>
+                        <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-left">
+                            <div className="flex items-center space-x-2"><span className="text-gray-500">Wind</span><strong>{current.wind.speed} km/h</strong></div>
+                            <div className="flex items-center space-x-2"><span className="text-gray-500">Humidity</span><strong>{current.humidity}%</strong></div>
+                            <div className="flex items-center space-x-2"><span className="text-gray-500">Direction</span><strong>{current.wind.direction}</strong></div>
+                            <div className="flex items-center space-x-2"><span className="text-gray-500">Pressure</span><strong>{current.pressure} hPa</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Timeline and Scrubber */}
+                <div className="relative p-4 z-10">
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                        <span>11:00</span>
+                        <span>12:00</span>
+                        <span>13:00</span>
+                        <span>14:00</span>
+                        <span>15:00</span>
+                        <span>16:00</span>
+                        <span>17:00</span>
+                    </div>
+                    <div className="w-full h-1 bg-gray-700 rounded-full mt-2 relative">
+                        <div className="absolute h-1 bg-orange-500 rounded-full" style={{width: '30%'}}></div>
+                        <div className="absolute h-3 w-3 -top-1 bg-white rounded-full" style={{left: '30%'}}></div>
+                    </div>
+                    <HourlyForecast data={hourly} />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Dashboard;
